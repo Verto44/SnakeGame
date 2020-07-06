@@ -1,6 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Globalization;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GameController : MonoBehaviour
 {
@@ -20,15 +23,32 @@ public class GameController : MonoBehaviour
     public Transform food;    // prefab da comida
     public GameObject tailPrefab;    // prefab da calda
 
-    public int col;    // Número de colunas 
+    public int col;     // Número de colunas 
     public int rows;    // Número de linhas
 
     public float delayStep; // Tempo entre um passo e outro
     public float step;      // Quantidade de movimento a cada passo
 
+    public Text textScore;
+    public Text textHiScore;
+
+    private int score;
+    private int hiScore;
+
+    public GameObject panelGameOver;
+    public GameObject panelTitle;
+
+
     // Start is called before the first frame update
     void Start()
     {
+        // Inicializa pausado
+        Time.timeScale = 0;
+
+        // Inicializa o HiScore
+        hiScore = PlayerPrefs.GetInt("HiScore");
+        textHiScore.text = "Hi-Score: " + hiScore; 
+
         // Chama o método que move a cobra a cada tempo definido pela variável delayStep
         StartCoroutine("MoveSnake");
 
@@ -114,6 +134,9 @@ public class GameController : MonoBehaviour
         GameObject temp = Instantiate(tailPrefab, tailPosition, transform.localRotation);
         tail.Add(temp.transform);
 
+        score += 10;
+        textScore.text = "Score: " + score;
+
         SetFood();
     }
 
@@ -123,5 +146,38 @@ public class GameController : MonoBehaviour
         int y = Random.Range((rows -1)/2 * -1, (rows - 1)/2);
 
         food.position = new Vector2(x * step, y * step);
+    }
+
+    public void GameOver()
+    {
+        panelGameOver.SetActive(true);
+
+        Time.timeScale = 0;
+        if(score > hiScore)
+        {
+            PlayerPrefs.SetInt("HiScore", score);
+            textHiScore.text = "Hi-Score: " + hiScore;
+        }
+    }
+
+    public void PlayGame()
+    {
+        head.position = Vector3.zero;
+        SetFood();
+        score = 0;
+
+        //Limpa a lista de caldas
+        foreach (Transform t in tail)
+        {
+            Destroy(t.gameObject);
+        }
+        tail.Clear();
+
+        textScore.text = "Score: " + score;
+        moveDirection = Direction.LEFT;
+        head.rotation = Quaternion.Euler(new Vector3(0, 0, 0));
+        panelGameOver.SetActive(false);
+        panelTitle.SetActive(false);
+        Time.timeScale = 1;
     }
 }
