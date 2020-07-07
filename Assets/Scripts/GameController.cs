@@ -18,7 +18,7 @@ public class GameController : MonoBehaviour
 
     private Vector3 lastPosition;    //Salva a última posição de um obj 
 
-    public Transform food;    // prefab da comida
+    public Transform food;           // prefab da comida
     public GameObject tailPrefab;    // prefab da calda
 
     public int col;     // Número de colunas 
@@ -150,12 +150,14 @@ public class GameController : MonoBehaviour
     {
         panelGameOver.SetActive(true);
 
-        Time.timeScale = 0;
         if(score > hiScore)
         {
+            hiScore = score;
             PlayerPrefs.SetInt("HiScore", score);
-            textHiScore.text = "Hi-Score: " + hiScore;
+            textHiScore.text = "New Hi-Score: " + hiScore;
         }
+
+        Time.timeScale = 0;
     }
 
     public void PlayGame()
@@ -172,6 +174,8 @@ public class GameController : MonoBehaviour
         tail.Clear();
 
         textScore.text = "Score: " + score;
+        textHiScore.text = "Hi-Score: " + hiScore;
+
         moveDirection = Direction.LEFT;
         head.rotation = Quaternion.Euler(new Vector3(0, 0, 0));
         panelGameOver.SetActive(false);
